@@ -1,0 +1,493 @@
+<!-- File: workspace_b3660a83(2)/templates/admin.html -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>داشبورد مدیر کل — MAPNA SwapFleet AI</title>
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <div class="sidebar-backdrop"></div>
+  <div class="app">
+    <aside class="sidebar" aria-label="منوی اصلی">
+      <div class="sidebar-head">
+        <div class="brand">
+          <span class="bolt" aria-hidden="true" data-icon="bolt" data-size="18"></span>
+          <span>MAPNA</span>
+        </div>
+      </div>
+      <nav>
+        <div class="nav-label">مدیریت</div>
+        <a href="#overview" class="active" data-tab="overview">
+          <span class="nav-icon" data-icon="dashboard" data-size="18"></span>
+          نمای کلی
+        </a>
+        <a href="#stations" data-tab="stations">
+          <span class="nav-icon" data-icon="station" data-size="18"></span>
+          ایستگاه‌ها
+        </a>
+        <a href="#users" data-tab="users">
+          <span class="nav-icon" data-icon="users" data-size="18"></span>
+          کاربران
+        </a>
+        <a href="#alerts" data-tab="alerts">
+          <span class="nav-icon" data-icon="alert" data-size="18"></span>
+          هشدارها
+        </a>
+        <div class="nav-label">ابزارها</div>
+        <a href="#map" data-tab="map">
+          <span class="nav-icon" data-icon="map" data-size="18"></span>
+          نقشه
+        </a>
+        <a href="#ai" data-tab="ai">
+          <span class="nav-icon" data-icon="ai" data-size="18"></span>
+          دستیار AI
+        </a>
+      </nav>
+      <div class="user-card">
+        <div class="avatar" aria-hidden="true"><span id="userAvatar">U</span></div>
+        <div class="meta">
+          <div class="name" id="userName">—</div>
+          <div class="role" id="userRole">—</div>
+        </div>
+        <button class="logout" onclick="SF.logout()" aria-label="خروج" title="خروج">
+          <span data-icon="logout" data-size="16"></span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- Mobile topbar (visible ≤880px) -->
+      <div class="mobile-topbar">
+        <button class="menu-btn" aria-label="باز کردن منو">
+          <span data-icon="menu" data-size="20"></span>
+        </button>
+        <h1 id="mobileTitle">نمای کلی</h1>
+      </div>
+
+      <!-- OVERVIEW -->
+      <section id="tab-overview" class="section">
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="dashboard" data-size="18"></div>
+            <div>
+              <h1>نمای کلی سیستم</h1>
+              <div class="subtitle">وضعیت لحظه‌ای ایستگاه‌ها، باتری‌ها و ناوگان</div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid" id="kpis">
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3><span class="h3-icon" data-icon="station" data-size="16"></span>عملکرد ایستگاه‌ها</h3>
+            <div class="table-wrap" style="border:none;background:transparent">
+              <table id="stations-table">
+                <thead><tr><th>ایستگاه</th><th>اسلات خالی</th><th>سواپ‌ها</th><th>درآمد</th></tr></thead>
+                <tbody><tr><td colspan="4"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <h3><span class="h3-icon" data-icon="trip" data-size="16"></span>سفرهای اخیر</h3>
+            <div class="table-wrap" style="border:none;background:transparent">
+              <table id="trips-table">
+                <thead><tr><th>تاریخ</th><th>مسافت</th><th>CO₂</th></tr></thead>
+                <tbody><tr><td colspan="3"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATIONS -->
+      <section id="tab-stations" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="station" data-size="18"></div>
+            <div>
+              <h1>ایستگاه‌ها</h1>
+              <div class="subtitle">مدیریت تمام ایستگاه‌های سواپ</div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="document.getElementById('addStationModal').classList.add('is-open')">
+              <span class="btn-icon" data-icon="plus" data-size="16"></span>افزودن ایستگاه
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="stations-full-table">
+            <thead><tr><th>نام</th><th>آدرس</th><th>ظرفیت</th><th>خالی</th><th>وضعیت</th></tr></thead>
+            <tbody><tr><td colspan="5"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="tab-users" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="users" data-size="18"></div>
+            <div>
+              <h1>کاربران</h1>
+              <div class="subtitle">مدیریت حساب‌ها و دسترسی‌ها</div>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="users-table">
+            <thead><tr><th>نام</th><th>ایمیل</th><th>نقش</th><th>تلفن</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ALERTS -->
+      <section id="tab-alerts" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="alert" data-size="18"></div>
+            <div>
+              <h1>هشدارها و خرابی‌ها</h1>
+              <div class="subtitle">پایش سلامت باتری‌ها و ناهنجاری‌ها</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="alerts-list">
+          <div class="empty-state">
+            <div class="empty-icon" data-icon="layers" data-size="24"></div>
+            <div class="empty-title">در حال بارگذاری…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAP -->
+      <section id="tab-map" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="map" data-size="18"></div>
+            <div>
+              <h1>نقشه ایستگاه‌ها</h1>
+              <div class="subtitle">موقعیت جغرافیایی و ظرفیت هر ایستگاه</div>
+            </div>
+          </div>
+        </div>
+        <div class="map-wrap">
+          <div class="map-controls">
+            <label for="mapSearch">جستجوی ناحیه</label>
+            <div class="input-search">
+              <span class="ico" data-icon="search" data-size="14"></span>
+              <input type="text" id="mapSearch" placeholder="نام ایستگاه..." />
+            </div>
+            <button class="btn btn-primary btn-block btn-sm" onclick="mapFit()">
+              <span class="btn-icon" data-icon="layers" data-size="14"></span>نمایش همه
+            </button>
+          </div>
+          <div id="map" role="region" aria-label="نقشه"></div>
+        </div>
+      </section>
+
+      <!-- AI ASSISTANT -->
+      <section id="tab-ai" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="ai" data-size="18"></div>
+            <div>
+              <h1>دستیار AI</h1>
+              <div class="subtitle">پاسخ به سؤالات شما بر اساس داده‌های سیستم</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-box">
+          <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
+          <div class="chat-suggestions" id="chatSuggestions"></div>
+          <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="سوال خود را بپرسید..." aria-label="پیام" />
+            <button class="btn btn-primary" onclick="sendChat()" aria-label="ارسال">
+              <span class="btn-icon" data-icon="send" data-size="16"></span>ارسال
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom tab bar (mobile) -->
+    <nav class="bottom-nav" aria-label="ناوبری سریع">
+      <a href="#overview" data-tab="overview">
+        <span class="ico" data-icon="dashboard" data-size="22"></span>کلی
+      </a>
+      <a href="#stations" data-tab="stations">
+        <span class="ico" data-icon="station" data-size="22"></span>ایستگاه
+      </a>
+      <a href="#alerts" data-tab="alerts">
+        <span class="ico" data-icon="alert" data-size="22"></span>هشدار
+      </a>
+      <a href="#map" data-tab="map">
+        <span class="ico" data-icon="map" data-size="22"></span>نقشه
+      </a>
+      <a href="#ai" data-tab="ai">
+        <span class="ico" data-icon="ai" data-size="22"></span>AI
+      </a>
+    </nav>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const u = SF.requireAuth('admin');
+    if (u) {
+      document.getElementById('userName').textContent = u.full_name;
+      document.getElementById('userRole').textContent = 'نقش: ' + roleFa(u.role);
+      document.getElementById('userAvatar').textContent = SF.avatar(u.full_name);
+    }
+
+    const TAB_TITLES = {
+      overview: 'نمای کلی', stations: 'ایستگاه‌ها', users: 'کاربران',
+      alerts: 'هشدارها', map: 'نقشه', ai: 'دستیار AI'
+    };
+
+    function roleFa(r) {
+      return { admin: 'ادمین', station: 'مدیر ایستگاه', fleet: 'مدیر ناوگان', rider: 'موتورسوار' }[r] || r;
+    }
+
+    // Tab switching
+    document.querySelectorAll('.sidebar nav a').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const t = a.dataset.tab;
+        switchTab(t);
+      });
+    });
+    document.querySelectorAll('.bottom-nav a').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const t = a.dataset.tab;
+        switchTab(t);
+        window.location.hash = t;
+      });
+    });
+    function switchTab(t) {
+      document.querySelectorAll('.sidebar nav a').forEach((x) => x.classList.toggle('active', x.dataset.tab === t));
+      ['overview', 'stations', 'users', 'alerts', 'map', 'ai'].forEach((id) => {
+        const el = document.getElementById('tab-' + id);
+        if (!el) return;
+        el.hidden = id !== t;
+      });
+      const mt = document.getElementById('mobileTitle');
+      if (mt) mt.textContent = TAB_TITLES[t] || '';
+      if (t === 'map' && !window._mapInit) initMap();
+    }
+    // Initial tab from hash
+    if (location.hash) switchTab(location.hash.slice(1));
+
+    async function loadOverview() {
+      const r = await SF.api('/analytics/overview');
+      if (!r.ok) return;
+      const d = r.data;
+      document.getElementById('kpis').innerHTML = `
+        <div class="kpi kpi-primary">
+          <div class="label"><span class="ico" data-icon="station" data-size="14"></span>ایستگاه‌های فعال</div>
+          <div class="value">${d.stations.active}<span class="muted-2" style="font-size:14px;font-weight:500">/${d.stations.total}</span></div>
+        </div>
+        <div class="kpi kpi-info">
+          <div class="label"><span class="ico" data-icon="battery" data-size="14"></span>باتری آماده</div>
+          <div class="value">${d.batteries.ready}</div>
+          <div class="sub">میانگین SoC: ${d.batteries.avg_soc}%</div>
+        </div>
+        <div class="kpi kpi-accent">
+          <div class="label"><span class="ico" data-icon="vehicle" data-size="14"></span>موتور پایلوت</div>
+          <div class="value">${d.vehicles.pilot}</div>
+          <div class="sub">در سرویس: ${d.vehicles.in_service}</div>
+        </div>
+        <div class="kpi kpi-primary">
+          <div class="label"><span class="ico" data-icon="leaf" data-size="14"></span>CO₂ صرفه‌جویی شده</div>
+          <div class="value">${d.sustainability.total_co2_saved_kg}<span class="muted-2" style="font-size:14px;font-weight:500"> kg</span></div>
+          <div class="sub">معادل ${d.sustainability.co2_saved_trees_equivalent} درخت</div>
+        </div>
+        <div class="kpi kpi-warning">
+          <div class="label"><span class="ico" data-icon="trendUp" data-size="14"></span>Uptime</div>
+          <div class="value">${(d.vehicles.uptime_ratio*100).toFixed(1)}%</div>
+        </div>
+        <div class="kpi kpi-info">
+          <div class="label"><span class="ico" data-icon="users" data-size="14"></span>کاربران</div>
+          <div class="value">${d.users.total}</div>
+        </div>
+      `;
+      SF.toast && document.querySelectorAll('[data-icon]').forEach(e => {
+        const n = e.getAttribute('data-icon');
+        if (n) e.innerHTML = SF.icon(n, { size: parseInt(e.getAttribute('data-size')||'18',10) });
+      });
+    }
+
+    async function loadStations() {
+      const r = await SF.api('/analytics/stations');
+      if (!r.ok) return;
+      const tbody = document.querySelector('#stations-table tbody');
+      if (!r.data.length) {
+        tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-title">ایستگاهی ثبت نشده</div></div></td></tr>';
+      } else {
+        tbody.innerHTML = r.data.map((s) => `
+          <tr>
+            <td><strong>${s.station_name}</strong></td>
+            <td><div class="bar" style="width:90px"><div style="width:${(s.available_slots/s.capacity_slots*100)||0}%"></div></div> ${s.available_slots}/${s.capacity_slots}</td>
+            <td class="text-mono">${s.total_swaps}</td>
+            <td class="text-mono">${SF.fmt.toman(s.revenue_toman)}</td>
+          </tr>`).join('');
+      }
+      const full = await SF.api('/admin/stations');
+      if (full.ok) {
+        const ft = document.querySelector('#stations-full-table tbody');
+        if (!full.data.length) {
+          ft.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-title">ایستگاهی ثبت نشده</div></div></td></tr>';
+        } else {
+          ft.innerHTML = full.data.map((s) => `
+            <tr>
+              <td><strong>${s.name}</strong></td>
+              <td class="muted">${s.address || '—'}</td>
+              <td class="text-mono">${s.capacity_slots}</td>
+              <td class="text-mono">${s.available_slots}</td>
+              <td><span class="badge ${s.is_active ? 'ready' : 'fault'}">${s.is_active ? 'فعال' : 'غیرفعال'}</span></td>
+            </tr>`).join('');
+        }
+      }
+    }
+
+    async function loadUsers() {
+      const r = await SF.api('/admin/users');
+      if (!r.ok) return;
+      const t = document.querySelector('#users-table tbody');
+      if (!r.data.length) {
+        t.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-title">کاربری ثبت نشده</div></div></td></tr>';
+      } else {
+        t.innerHTML = r.data.map((u) => `
+          <tr>
+            <td><strong>${u.full_name}</strong></td>
+            <td data-ltr>${u.email}</td>
+            <td><span class="badge neutral">${roleFa(u.role)}</span></td>
+            <td data-ltr>${u.phone || '—'}</td>
+            <td><span class="badge ${u.is_active ? 'ready' : 'fault'}"><span class="dot ${u.is_active ? 'ready' : 'fault'}"></span>${u.is_active ? 'فعال' : 'غیرفعال'}</span></td>
+            <td class="actions"><button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})">${u.is_active ? 'غیرفعال' : 'فعال'} کن</button></td>
+          </tr>`).join('');
+      }
+    }
+    async function toggleUser(id) {
+      await SF.api('/admin/users/' + id + '/toggle', { method: 'PATCH' });
+      loadUsers();
+      SF.toast('وضعیت کاربر تغییر کرد', 'success');
+    }
+
+    async function loadAlerts() {
+      const r = await SF.api('/analytics/alerts');
+      const list = document.getElementById('alerts-list');
+      if (!r.ok || !r.data.length) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon" data-icon="check" data-size="22"></div><div class="empty-title">هیچ هشدار فعالی نیست</div><div class="muted">همه چی مرتبه</div></div>';
+        return;
+      }
+      list.innerHTML = r.data.map((a) => `
+        <div class="list-item">
+          <div class="li-left">
+            <div class="li-icon ${a.severity==='high'||a.severity==='critical'?'danger':a.severity==='medium'?'warn':'info'}">
+              <span data-icon="alert" data-size="18"></span>
+            </div>
+            <div class="li-main">
+              <div class="li-title">${a.title}</div>
+              <div class="li-sub">${a.description || ''}${a.battery_serial ? ' — باتری ' + a.battery_serial + ' (SoH: ' + a.battery_soh + '%)' : ''}</div>
+            </div>
+          </div>
+          <div class="li-right">
+            <span class="badge ${a.severity}">${a.severity}</span>
+            <span class="badge ${a.status}">${a.status}</span>
+          </div>
+        </div>`).join('');
+      refreshIcons();
+    }
+
+    // --- MAP ---
+    let map = null;
+    let markers = [];
+    async function initMap() {
+      window._mapInit = true;
+      map = L.map('map').setView([35.6892, 51.3890], 11);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+      }).addTo(map);
+      const r = await SF.api('/swap/stations');
+      if (!r.ok) return;
+      r.data.forEach((s) => {
+        const m = L.marker([s.lat, s.lng]).addTo(map);
+        m.bindPopup(`<b>${s.name}</b><br>${s.address || ''}<br>ظرفیت: ${s.available_slots}/${s.capacity_slots}`);
+        markers.push(m);
+      });
+    }
+    function mapFit() {
+      if (markers.length) {
+        const g = L.featureGroup(markers).getBounds();
+        map.fitBounds(g, { padding: [40, 40] });
+      }
+    }
+
+    // --- AI Chat ---
+    const chatMsgs = document.getElementById('chatMessages');
+    const chatSugg = document.getElementById('chatSuggestions');
+    const SUGG = ['چند ایستگاه فعال داریم؟', 'سلامت باتری‌ها چطوره؟', 'تعداد موتور پایلوت؟', 'CO2 صرفه‌جویی شده؟', 'هشدارهای اخیر چیست؟'];
+    function renderSugg() {
+      chatSugg.innerHTML = SUGG.map((s) =>
+        `<button onclick="useSugg('${s}')"><span data-icon="sparkle" data-size="12"></span>${s}</button>`
+      ).join('');
+      refreshIcons();
+    }
+    renderSugg();
+    function useSugg(t) { document.getElementById('chatInput').value = t; sendChat(); }
+    function appendMsg(role, content) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + role;
+      div.textContent = content;
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+    function appendThinking() {
+      const div = document.createElement('div');
+      div.className = 'msg thinking';
+      div.id = 'thinkingMsg';
+      div.innerHTML = '<span>در حال پاسخ</span><span class="dot-row"><span></span><span></span><span></span></span>';
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+    async function sendChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      appendMsg('user', text);
+      input.value = '';
+      appendThinking();
+      const res = await SF.api('/llm/ask', { method: 'POST', body: { message: text } });
+      const t = document.getElementById('thinkingMsg');
+      if (t) t.remove();
+      if (res.ok) appendMsg('assistant', res.reply);
+      else appendMsg('assistant', 'خطا: ' + (res.error || 'نامشخص'));
+    }
+    document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChat(); });
+
+    function refreshIcons() {
+      document.querySelectorAll('[data-icon]').forEach((e) => {
+        const n = e.getAttribute('data-icon');
+        if (n && !e.querySelector('svg')) e.innerHTML = SF.icon(n, { size: parseInt(e.getAttribute('data-size') || '18', 10) });
+      });
+    }
+
+    // Initial load
+    loadOverview().then(refreshIcons);
+    loadStations();
+    loadUsers();
+    loadAlerts();
+  </script>
+</body>
+</html>

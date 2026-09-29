@@ -1,0 +1,503 @@
+<!-- File: workspace_b3660a83(2)/templates/rider.html -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>داشبورد موتورسوار — MAPNA SwapFleet AI</title>
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <div class="sidebar-backdrop"></div>
+  <div class="app">
+    <aside class="sidebar" aria-label="منوی اصلی">
+      <div class="sidebar-head">
+        <div class="brand">
+          <span class="bolt" aria-hidden="true" data-icon="bolt" data-size="18"></span>
+          <span>موتورسوار</span>
+        </div>
+      </div>
+      <nav>
+        <div class="nav-label">سفر</div>
+        <a href="#home" class="active" data-tab="home">
+          <span class="nav-icon" data-icon="home" data-size="18"></span>خانه
+        </a>
+        <a href="#route" data-tab="route">
+          <span class="nav-icon" data-icon="route" data-size="18"></span>مسیریابی
+        </a>
+        <a href="#swap" data-tab="swap">
+          <span class="nav-icon" data-icon="swap" data-size="18"></span>سواپ
+        </a>
+        <a href="#history" data-tab="history">
+          <span class="nav-icon" data-icon="history" data-size="18"></span>تاریخچه
+        </a>
+        <div class="nav-label">پشتیبانی</div>
+        <a href="#sos" data-tab="sos">
+          <span class="nav-icon" data-icon="sos" data-size="18"></span>SOS
+        </a>
+        <a href="#ai" data-tab="ai">
+          <span class="nav-icon" data-icon="ai" data-size="18"></span>دستیار AI
+        </a>
+      </nav>
+      <div class="user-card">
+        <div class="avatar" aria-hidden="true"><span id="userAvatar">R</span></div>
+        <div class="meta">
+          <div class="name" id="userName">—</div>
+          <div class="role">موتورسوار</div>
+        </div>
+        <button class="logout" onclick="SF.logout()" aria-label="خروج" title="خروج">
+          <span data-icon="logout" data-size="16"></span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="mobile-topbar">
+        <button class="menu-btn" aria-label="باز کردن منو">
+          <span data-icon="menu" data-size="20"></span>
+        </button>
+        <h1 id="mobileTitle">خانه</h1>
+      </div>
+
+      <section id="tab-home" class="section">
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="home" data-size="18"></div>
+            <div>
+              <h1>خانه</h1>
+              <div class="subtitle">آمار سفر و مصرف شما</div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid" id="kpis">
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3><span class="h3-icon" data-icon="vehicle" data-size="16"></span>وسایل من</h3>
+            <div id="my-vehicles"></div>
+          </div>
+          <div class="card">
+            <h3><span class="h3-icon" data-icon="trip" data-size="16"></span>سفرهای اخیر</h3>
+            <div class="table-wrap" style="border:none;background:transparent">
+              <table id="my-trips">
+                <thead><tr><th>تاریخ</th><th>مسافت</th><th>CO₂</th></tr></thead>
+                <tbody><tr><td colspan="3"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-route" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="route" data-size="18"></div>
+            <div>
+              <h1>مسیریابی هوشمند</h1>
+              <div class="subtitle">پیشنهاد بهترین ایستگاه سواپ برای رسیدن به مقصد</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="grid-2">
+            <div>
+              <div class="form-group">
+                <label for="socInput">SoC فعلی (%)</label>
+                <input type="number" id="socInput" value="60" min="5" max="100" />
+              </div>
+              <div class="form-group">
+                <label for="weatherInput">آب و هوا</label>
+                <select id="weatherInput">
+                  <option value="clear">صاف</option>
+                  <option value="rain">بارانی</option>
+                  <option value="hot">گرم</option>
+                  <option value="cold">سرد</option>
+                  <option value="wind">باد</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="prefInput">اولویت</label>
+                <select id="prefInput">
+                  <option value="balanced">متعادل</option>
+                  <option value="fastest">سریع‌ترین</option>
+                  <option value="cheapest">ارزان‌ترین</option>
+                  <option value="available">ظرفیت بیشتر</option>
+                </select>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="planRoute()">
+                <span class="btn-icon" data-icon="route" data-size="16"></span>محاسبه مسیر
+              </button>
+            </div>
+            <div id="routeResult"></div>
+          </div>
+        </div>
+        <div class="map-wrap">
+          <div id="map" role="region" aria-label="نقشه"></div>
+        </div>
+      </section>
+
+      <section id="tab-swap" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="swap" data-size="18"></div>
+            <div>
+              <h1>تعویض باتری</h1>
+              <div class="subtitle">رزرو سریع اسلات در ایستگاه</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="form-group">
+            <label for="swapStation">انتخاب ایستگاه</label>
+            <select id="swapStation"></select>
+          </div>
+          <button class="btn btn-primary btn-block btn-lg" onclick="doSwap()">
+            <span class="btn-icon" data-icon="bolt" data-size="16"></span>رزرو و تعویض
+          </button>
+          <div id="swapResult" style="margin-top:16px"></div>
+        </div>
+      </section>
+
+      <section id="tab-history" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="history" data-size="18"></div>
+            <div>
+              <h1>تاریخچه</h1>
+              <div class="subtitle">سفرها و سواپ‌های گذشته</div>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="history-table">
+            <thead><tr><th>تاریخ</th><th>نوع</th><th>جزئیات</th><th>هزینه</th></tr></thead>
+            <tbody><tr><td colspan="4"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-sos" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="sos" data-size="18"></div>
+            <div>
+              <h1>درخواست اضطراری SOS</h1>
+              <div class="subtitle">پشتیبانی سریع در کمتر از ۵ دقیقه</div>
+            </div>
+          </div>
+        </div>
+        <div class="card text-center" style="padding:32px">
+          <div style="width:80px;height:80px;margin:0 auto 16px;border-radius:50%;background:var(--danger-soft);color:var(--danger);display:grid;place-items:center">
+            <span data-icon="shield" data-size="40"></span>
+          </div>
+          <p class="muted mb-3">در صورت بروز مشکل، دکمه زیر را فشار دهید. تیم پشتیبانی در کمتر از ۵ دقیقه تماس می‌گیرد.</p>
+          <button class="btn btn-danger btn-lg" style="min-width:200px" onclick="triggerSOS()">
+            <span class="btn-icon" data-icon="alert" data-size="18"></span>فعال‌سازی SOS
+          </button>
+          <div id="sosResult" style="margin-top:24px"></div>
+        </div>
+      </section>
+
+      <section id="tab-ai" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="ai" data-size="18"></div>
+            <div>
+              <h1>دستیار AI</h1>
+              <div class="subtitle">پاسخگوی سؤالات شما درباره سفر و باتری</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-box">
+          <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
+          <div class="chat-suggestions" id="chatSuggestions"></div>
+          <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="سوال..." aria-label="پیام" />
+            <button class="btn btn-primary" onclick="sendChat()" aria-label="ارسال">
+              <span class="btn-icon" data-icon="send" data-size="16"></span>ارسال
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="ناوبری سریع">
+      <a href="#home" data-tab="home"><span class="ico" data-icon="home" data-size="22"></span>خانه</a>
+      <a href="#route" data-tab="route"><span class="ico" data-icon="route" data-size="22"></span>مسیر</a>
+      <a href="#swap" data-tab="swap"><span class="ico" data-icon="swap" data-size="22"></span>سواپ</a>
+      <a href="#history" data-tab="history"><span class="ico" data-icon="history" data-size="22"></span>سابقه</a>
+      <a href="#ai" data-tab="ai"><span class="ico" data-icon="ai" data-size="22"></span>AI</a>
+    </nav>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const u = SF.requireAuth('rider');
+    if (u) {
+      document.getElementById('userName').textContent = u.full_name;
+      document.getElementById('userAvatar').textContent = SF.avatar(u.full_name);
+    }
+
+    const TAB_TITLES = {
+      home: 'خانه', route: 'مسیریابی', swap: 'سواپ',
+      history: 'تاریخچه', sos: 'SOS', ai: 'دستیار AI'
+    };
+
+    document.querySelectorAll('.sidebar nav a').forEach((a) => {
+      a.addEventListener('click', (e) => { e.preventDefault(); switchTab(a.dataset.tab); });
+    });
+    document.querySelectorAll('.bottom-nav a').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(a.dataset.tab);
+        window.location.hash = a.dataset.tab;
+      });
+    });
+    function switchTab(t) {
+      document.querySelectorAll('.sidebar nav a').forEach((x) => x.classList.toggle('active', x.dataset.tab === t));
+      ['home', 'route', 'swap', 'history', 'sos', 'ai'].forEach((id) => {
+        const el = document.getElementById('tab-' + id);
+        if (el) el.hidden = id !== t;
+      });
+      const mt = document.getElementById('mobileTitle');
+      if (mt) mt.textContent = TAB_TITLES[t] || '';
+      if (t === 'route' && !window._mapInit) initRiderMap();
+      if (t === 'swap') loadSwapStations();
+      if (t === 'history') loadHistory();
+    }
+    if (location.hash) switchTab(location.hash.slice(1));
+
+    async function loadHome() {
+      const r = await SF.api('/rider/dashboard');
+      if (!r.ok) return;
+      const s = r.data.summary;
+      document.getElementById('kpis').innerHTML = `
+        <div class="kpi kpi-accent">
+          <div class="label"><span class="ico" data-icon="trip" data-size="14"></span>سفرها</div>
+          <div class="value">${s.trip_count}</div>
+        </div>
+        <div class="kpi kpi-primary">
+          <div class="label"><span class="ico" data-icon="swap" data-size="14"></span>سواپ‌ها</div>
+          <div class="value">${s.swap_count}</div>
+        </div>
+        <div class="kpi kpi-info">
+          <div class="label"><span class="ico" data-icon="route" data-size="14"></span>مسافت کل</div>
+          <div class="value">${s.total_distance_km}<span class="muted-2" style="font-size:13px;font-weight:500"> km</span></div>
+        </div>
+        <div class="kpi kpi-primary">
+          <div class="label"><span class="ico" data-icon="leaf" data-size="14"></span>CO₂ صرفه‌جویی</div>
+          <div class="value">${s.co2_saved_kg}<span class="muted-2" style="font-size:13px;font-weight:500"> kg</span></div>
+        </div>
+      `;
+      const v = document.getElementById('my-vehicles');
+      if (!r.data.vehicles.length) {
+        v.innerHTML = '<div class="empty-state"><div class="empty-icon" data-icon="vehicle" data-size="22"></div><div class="empty-title">وسیله‌ای ثبت نشده</div></div>';
+      } else {
+        v.innerHTML = r.data.vehicles.map((vv) => `
+          <div class="list-item">
+            <div class="li-left">
+              <div class="li-icon"><span data-icon="vehicle" data-size="18"></span></div>
+              <div class="li-main">
+                <div class="li-title" data-ltr>${vv.plate}</div>
+                <div class="li-sub">${vv.model}</div>
+              </div>
+            </div>
+            <span class="badge ${vv.status}"><span class="dot ${vv.status}"></span>${vv.status}</span>
+          </div>`).join('');
+      }
+      const tb = document.querySelector('#my-trips tbody');
+      if (!r.data.recent_trips.length) {
+        tb.innerHTML = '<tr><td colspan="3"><div class="empty-state"><div class="empty-title">سفری ثبت نشده</div></div></td></tr>';
+      } else {
+        tb.innerHTML = r.data.recent_trips.map((t) => `
+          <tr>
+            <td class="muted" data-ltr>${SF.fmt.date(t.started_at)}</td>
+            <td class="text-mono">${t.distance_km} km</td>
+            <td class="text-mono">${t.co2_saved_kg} kg</td>
+          </tr>`).join('');
+      }
+      refreshIcons();
+    }
+
+    // Route
+    let map = null;
+    let markers = [];
+    let userMarker = null;
+    let destMarker = null;
+    function initRiderMap() {
+      window._mapInit = true;
+      map = L.map('map').setView([35.6892, 51.3890], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OSM'
+      }).addTo(map);
+      userMarker = L.marker([35.6892, 51.3890], {draggable: true}).addTo(map).bindPopup('موقعیت شما');
+      destMarker = L.marker([35.7589, 51.4159], {draggable: true}).addTo(map).bindPopup('مقصد');
+      userMarker.on('dragend', (e) => destMarker.setLatLng(e.target.getLatLng()));
+      map.on('click', (e) => {
+        if (window._placingDest) destMarker.setLatLng(e.latlng);
+        else userMarker.setLatLng(e.latlng);
+      });
+    }
+    async function planRoute() {
+      const btn = event.currentTarget;
+      btn.classList.add('is-loading');
+      const soc = parseFloat(document.getElementById('socInput').value);
+      const weather = document.getElementById('weatherInput').value;
+      const pref = document.getElementById('prefInput').value;
+      const ul = userMarker.getLatLng();
+      const dl = destMarker.getLatLng();
+      const r = await SF.api('/route/plan', {
+        method: 'POST',
+        body: {
+          origin_lat: ul.lat, origin_lng: ul.lng,
+          dest_lat: dl.lat, dest_lng: dl.lng,
+          soc_percent: soc, weather, preference: pref,
+        },
+      });
+      btn.classList.remove('is-loading');
+      if (!r.ok) { SF.toast('خطا در محاسبه مسیر', 'error'); return; }
+      const d = r.data;
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+      (d.candidates || []).forEach((c) => {
+        const m = L.marker([c.lat, c.lng], {opacity: 0.7}).addTo(map);
+        m.bindPopup(`<b>${c.station_name}</b><br>${c.distance_km} km<br>خالی: ${c.available_slots}`);
+        markers.push(m);
+      });
+      if (d.recommended) {
+        L.circleMarker([d.recommended.lat, d.recommended.lng], {color: 'red', radius: 12}).addTo(map);
+      }
+      const rec = d.recommended;
+      document.getElementById('routeResult').innerHTML = rec ? `
+        <div class="card" style="background:var(--surface-2);border-color:var(--primary)">
+          <h3 style="color:var(--primary)">${rec.station_name}</h3>
+          <p class="mb-2"><span data-icon="route" data-size="14" style="display:inline-block;vertical-align:middle"></span> فاصله: <strong class="text-mono">${rec.distance_km} km</strong></p>
+          <p class="mb-2"><span data-icon="plug" data-size="14" style="display:inline-block;vertical-align:middle"></span> اسلات خالی: <strong class="text-mono">${rec.available_slots}</strong></p>
+          <p class="mb-2"><span data-icon="calendar" data-size="14" style="display:inline-block;vertical-align:middle"></span> ETA مقصد: <strong>${d.eta_minutes} دقیقه</strong></p>
+          <p class="muted mb-2">آب و هوا: ${weather} | SoC: ${soc}%</p>
+          <div class="bar"><div style="width:${rec.score*100}%"></div></div>
+          <p class="muted mt-2">امتیاز: ${rec.score}</p>
+        </div>
+      ` : '<div class="empty-state"><div class="empty-title">ایستگاه مناسبی پیدا نشد</div></div>';
+      refreshIcons();
+    }
+
+    // Swap
+    async function loadSwapStations() {
+      const r = await SF.api('/swap/stations');
+      if (!r.ok) return;
+      document.getElementById('swapStation').innerHTML = r.data.map((s) =>
+        `<option value="${s.id}">${s.name} (${s.available_slots} خالی)</option>`).join('');
+    }
+    async function doSwap() {
+      const btn = event.currentTarget;
+      btn.classList.add('is-loading');
+      const sid = document.getElementById('swapStation').value;
+      const r = await SF.api('/swap/stations/' + sid + '/reserve', { method: 'POST', body: {} });
+      btn.classList.remove('is-loading');
+      if (r.ok) {
+        SF.toast('رزرو با موفقیت انجام شد', 'success');
+        document.getElementById('swapResult').innerHTML = `
+          <div class="card" style="border-color:var(--primary);background:var(--primary-soft-2)">
+            <h3 style="color:var(--primary)">✅ رزرو موفق</h3>
+            <p class="mb-2">باتری جدید: <strong>#${r.data.new_battery_id}</strong></p>
+            <p class="mb-2">قیمت: <strong class="text-mono">${SF.fmt.toman(r.data.price_toman)}</strong></p>
+            <p class="mb-2">CO₂ صرفه‌جویی: <strong class="text-mono">${r.data.co2_saved_kg} kg</strong></p>
+            <p class="muted" data-ltr>${SF.fmt.date(r.data.created_at)}</p>
+          </div>
+        `;
+      } else {
+        SF.toast('خطا: ' + (r.error || 'نامشخص'), 'error');
+      }
+    }
+
+    // History
+    async function loadHistory() {
+      const r = await SF.api('/swap/events');
+      const tRes = await SF.api('/fleet/trips').catch(() => ({ok:false}));
+      const tb = document.querySelector('#history-table tbody');
+      const items = [
+        ...((r.data || []).map(e => ({...e, _kind: 'swap'}))),
+        ...((tRes.data || []).map(t => ({...t, _kind: 'trip', price_toman: t.cost_toman, created_at: t.started_at}))),
+      ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+      if (!items.length) {
+        tb.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-title">تاریخچه‌ای ثبت نشده</div></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = items.slice(0,30).map((i) => `
+        <tr>
+          <td class="muted" data-ltr>${SF.fmt.date(i.created_at)}</td>
+          <td><span class="badge ${i._kind === 'swap' ? 'ready' : 'info'}">${i._kind}</span></td>
+          <td>${i._kind === 'swap' ? `باتری #${i.new_battery_id} → ایستگاه #${i.station_id}` : `${i.distance_km} km, ${i.energy_kwh} kWh`}</td>
+          <td class="text-mono">${SF.fmt.toman(i.price_toman)}</td>
+        </tr>`).join('');
+    }
+
+    // SOS
+    async function triggerSOS() {
+      if (!confirm('آیا از فعال‌سازی SOS مطمئن هستید؟')) return;
+      const r = await SF.api('/llm/ask', { method: 'POST', body: { message: 'sos' } });
+      document.getElementById('sosResult').innerHTML = r.ok
+        ? `<div class="card" style="border-color:var(--danger);background:var(--danger-soft)"><h3 style="color:var(--danger)">${r.reply}</h3></div>`
+        : '<p style="color:var(--danger)">خطا</p>';
+    }
+
+    // Chat
+    const chatMsgs = document.getElementById('chatMessages');
+    const chatSugg = document.getElementById('chatSuggestions');
+    const SUGG = ['ایستگاه نزدیک', 'تاریخچه سفر', 'هزینه ماه', 'نکات اکو'];
+    function renderSugg() {
+      chatSugg.innerHTML = SUGG.map((s) =>
+        `<button onclick="useSugg('${s}')"><span data-icon="sparkle" data-size="12"></span>${s}</button>`).join('');
+      refreshIcons();
+    }
+    renderSugg();
+    function useSugg(t) { document.getElementById('chatInput').value = t; sendChat(); }
+    function appendMsg(role, content) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + role;
+      div.textContent = content;
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+    function appendThinking() {
+      const div = document.createElement('div');
+      div.className = 'msg thinking';
+      div.id = 'thinkingMsg';
+      div.innerHTML = '<span>در حال پاسخ</span><span class="dot-row"><span></span><span></span><span></span></span>';
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+    async function sendChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      appendMsg('user', text);
+      input.value = '';
+      appendThinking();
+      const res = await SF.api('/llm/ask', { method: 'POST', body: { message: text } });
+      const t = document.getElementById('thinkingMsg');
+      if (t) t.remove();
+      if (res.ok) appendMsg('assistant', res.reply);
+      else appendMsg('assistant', 'خطا');
+    }
+    document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChat(); });
+
+    function refreshIcons() {
+      document.querySelectorAll('[data-icon]').forEach((e) => {
+        const n = e.getAttribute('data-icon');
+        if (n && !e.querySelector('svg')) e.innerHTML = SF.icon(n, { size: parseInt(e.getAttribute('data-size') || '18', 10) });
+      });
+    }
+
+    loadHome();
+  </script>
+</body>
+</html>

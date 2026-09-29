@@ -1,0 +1,376 @@
+<!-- File: workspace_b3660a83(2)/templates/fleet.html -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>داشبورد مدیر ناوگان — MAPNA SwapFleet AI</title>
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="sidebar-backdrop"></div>
+  <div class="app">
+    <aside class="sidebar" aria-label="منوی اصلی">
+      <div class="sidebar-head">
+        <div class="brand">
+          <span class="bolt" aria-hidden="true" data-icon="bolt" data-size="18"></span>
+          <span>ناوگان</span>
+        </div>
+      </div>
+      <nav>
+        <div class="nav-label">مدیریت</div>
+        <a href="#home" class="active" data-tab="home">
+          <span class="nav-icon" data-icon="dashboard" data-size="18"></span>نمای کلی
+        </a>
+        <a href="#vehicles" data-tab="vehicles">
+          <span class="nav-icon" data-icon="vehicle" data-size="18"></span>وسایل
+        </a>
+        <a href="#trips" data-tab="trips">
+          <span class="nav-icon" data-icon="trip" data-size="18"></span>سفرها
+        </a>
+        <a href="#service" data-tab="service">
+          <span class="nav-icon" data-icon="wrench" data-size="18"></span>سرویس‌ها
+        </a>
+        <div class="nav-label">ابزارها</div>
+        <a href="#ai" data-tab="ai">
+          <span class="nav-icon" data-icon="ai" data-size="18"></span>دستیار AI
+        </a>
+      </nav>
+      <div class="user-card">
+        <div class="avatar" aria-hidden="true"><span id="userAvatar">F</span></div>
+        <div class="meta">
+          <div class="name" id="userName">—</div>
+          <div class="role">مدیر ناوگان</div>
+        </div>
+        <button class="logout" onclick="SF.logout()" aria-label="خروج" title="خروج">
+          <span data-icon="logout" data-size="16"></span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="mobile-topbar">
+        <button class="menu-btn" aria-label="باز کردن منو">
+          <span data-icon="menu" data-size="20"></span>
+        </button>
+        <h1 id="mobileTitle">نمای کلی</h1>
+      </div>
+
+      <section id="tab-home" class="section">
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="dashboard" data-size="18"></div>
+            <div>
+              <h1>نمای ناوگان</h1>
+              <div class="subtitle">عملکرد کلی ناوگان و سلامت وسایل</div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid" id="kpis">
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3><span class="h3-icon" data-icon="layers" data-size="16"></span>توزیع وضعیت وسایل</h3>
+            <div id="status-dist"></div>
+          </div>
+          <div class="card">
+            <h3><span class="h3-icon" data-icon="wrench" data-size="16"></span>نزدیک سرویس</h3>
+            <div id="service-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-vehicles" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="vehicle" data-size="18"></div>
+            <div>
+              <h1>وسایل نقلیه</h1>
+              <div class="subtitle">مدیریت موتورهای ناوگان</div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="document.getElementById('addVehicleModal').classList.add('is-open')">
+              <span class="btn-icon" data-icon="plus" data-size="16"></span>افزودن
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="vehicles-table">
+            <thead><tr><th>پلاک</th><th>مدل</th><th>کیلومتر</th><th>تا سرویس</th><th>وضعیت</th></tr></thead>
+            <tbody><tr><td colspan="5"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-trips" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="trip" data-size="18"></div>
+            <div>
+              <h1>سفرها</h1>
+              <div class="subtitle">تاریخچه سفرهای ثبت‌شده</div>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="trips-table">
+            <thead><tr><th>تاریخ</th><th>وسیله</th><th>مسافت</th><th>انرژی</th><th>CO₂</th><th>هزینه</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-service" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="wrench" data-size="18"></div>
+            <div>
+              <h1>پیش‌بینی سرویس</h1>
+              <div class="subtitle">تخمین زمان سرویس بعدی هر وسیله</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="service-predictions"></div>
+      </section>
+
+      <section id="tab-ai" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="ai" data-size="18"></div>
+            <div>
+              <h1>دستیار AI</h1>
+              <div class="subtitle">پاسخ به سؤالات شما بر اساس داده‌های ناوگان</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-box">
+          <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
+          <div class="chat-suggestions" id="chatSuggestions"></div>
+          <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="سوال..." aria-label="پیام" />
+            <button class="btn btn-primary" onclick="sendChat()" aria-label="ارسال">
+              <span class="btn-icon" data-icon="send" data-size="16"></span>ارسال
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="ناوبری سریع">
+      <a href="#home" data-tab="home"><span class="ico" data-icon="dashboard" data-size="22"></span>کلی</a>
+      <a href="#vehicles" data-tab="vehicles"><span class="ico" data-icon="vehicle" data-size="22"></span>وسایل</a>
+      <a href="#trips" data-tab="trips"><span class="ico" data-icon="trip" data-size="22"></span>سفر</a>
+      <a href="#service" data-tab="service"><span class="ico" data-icon="wrench" data-size="22"></span>سرویس</a>
+      <a href="#ai" data-tab="ai"><span class="ico" data-icon="ai" data-size="22"></span>AI</a>
+    </nav>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script>
+    const u = SF.requireAuth('fleet');
+    if (u) {
+      document.getElementById('userName').textContent = u.full_name;
+      document.getElementById('userAvatar').textContent = SF.avatar(u.full_name);
+    }
+
+    const TAB_TITLES = {
+      home: 'نمای کلی', vehicles: 'وسایل', trips: 'سفرها',
+      service: 'سرویس‌ها', ai: 'دستیار AI'
+    };
+
+    document.querySelectorAll('.sidebar nav a').forEach((a) => {
+      a.addEventListener('click', (e) => { e.preventDefault(); switchTab(a.dataset.tab); });
+    });
+    document.querySelectorAll('.bottom-nav a').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(a.dataset.tab);
+        window.location.hash = a.dataset.tab;
+      });
+    });
+    function switchTab(t) {
+      document.querySelectorAll('.sidebar nav a').forEach((x) => x.classList.toggle('active', x.dataset.tab === t));
+      ['home', 'vehicles', 'trips', 'service', 'ai'].forEach((id) => {
+        const el = document.getElementById('tab-' + id);
+        if (el) el.hidden = id !== t;
+      });
+      const mt = document.getElementById('mobileTitle');
+      if (mt) mt.textContent = TAB_TITLES[t] || '';
+      if (t === 'trips') loadTrips();
+      if (t === 'service') loadServicePred();
+    }
+    if (location.hash) switchTab(location.hash.slice(1));
+
+    async function loadHome() {
+      const r = await SF.api('/analytics/fleet');
+      if (!r.ok) return;
+      const d = r.data;
+      document.getElementById('kpis').innerHTML = `
+        <div class="kpi kpi-accent">
+          <div class="label"><span class="ico" data-icon="vehicle" data-size="14"></span>تعداد موتور</div>
+          <div class="value">${d.vehicle_count}</div>
+        </div>
+        <div class="kpi kpi-warning">
+          <div class="label"><span class="ico" data-icon="wrench" data-size="14"></span>سرویس نزدیک</div>
+          <div class="value">${d.service_due_count}</div>
+        </div>
+        <div class="kpi kpi-info">
+          <div class="label"><span class="ico" data-icon="battery" data-size="14"></span>میانگین SoC</div>
+          <div class="value">${d.avg_battery_soc}%</div>
+        </div>
+        <div class="kpi kpi-primary">
+          <div class="label"><span class="ico" data-icon="leaf" data-size="14"></span>میانگین SoH</div>
+          <div class="value">${d.avg_battery_soh}%</div>
+        </div>
+      `;
+      let dist = '';
+      const labels = { pilot: 'پایلوت', in_service: 'در سرویس', idle: 'آماده', fault: 'خراب' };
+      for (const [k, v] of Object.entries(d.status_breakdown || {})) {
+        dist += `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <span><span class="dot ${k==='fault'?'fault':k==='in_service'?'in_use':'ready'}"></span>${labels[k]||k}</span>
+          <strong class="text-mono">${v}</strong>
+        </div>`;
+      }
+      document.getElementById('status-dist').innerHTML = dist || '<div class="muted">—</div>';
+      const dueVeh = (d.vehicles || []).filter(v => v.service_due_soon);
+      const sl = document.getElementById('service-list');
+      if (!dueVeh.length) {
+        sl.innerHTML = '<div class="empty-state"><div class="empty-icon" data-icon="check" data-size="22"></div><div class="empty-title">همه سرویس‌ها به‌موقع هستند</div></div>';
+      } else {
+        sl.innerHTML = dueVeh.map(v => `
+          <div class="list-item">
+            <div class="li-left">
+              <div class="li-icon warn"><span data-icon="wrench" data-size="16"></span></div>
+              <div class="li-main">
+                <div class="li-title">${v.plate}</div>
+                <div class="li-sub">${v.km_to_next_service.toFixed(0)} کیلومتر مانده</div>
+              </div>
+            </div>
+            <span class="badge medium">${v.km_to_next_service.toFixed(0)} km</span>
+          </div>`).join('');
+      }
+      refreshIcons();
+    }
+
+    async function loadVehicles() {
+      const r = await SF.api('/fleet/vehicles');
+      if (!r.ok) return;
+      const tb = document.querySelector('#vehicles-table tbody');
+      if (!r.data.length) {
+        tb.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-title">وسیله‌ای ثبت نشده</div></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = r.data.map((v) => `
+        <tr>
+          <td data-ltr><strong>${v.plate}</strong></td>
+          <td>${v.model}</td>
+          <td class="text-mono">${v.odometer_km.toFixed(0)} km</td>
+          <td class="text-mono">${v.km_to_next_service.toFixed(0)} km ${v.service_due_soon ? '<span class="badge medium">⚠</span>' : ''}</td>
+          <td><span class="badge ${v.status}"><span class="dot ${v.status}"></span>${v.status}</span></td>
+        </tr>`).join('');
+    }
+
+    async function loadTrips() {
+      const r = await SF.api('/fleet/trips');
+      if (!r.ok) return;
+      const tb = document.querySelector('#trips-table tbody');
+      if (!r.data.length) {
+        tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-title">سفری ثبت نشده</div></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = r.data.slice(0, 30).map((t) => `
+        <tr>
+          <td class="muted" data-ltr>${SF.fmt.date(t.started_at)}</td>
+          <td>#${t.vehicle_id}</td>
+          <td class="text-mono">${t.distance_km.toFixed(1)} km</td>
+          <td class="text-mono">${t.energy_kwh} kWh</td>
+          <td class="text-mono">${t.co2_saved_kg} kg</td>
+          <td class="text-mono">${SF.fmt.toman(t.cost_toman)}</td>
+        </tr>`).join('');
+    }
+
+    async function loadServicePred() {
+      const r = await SF.api('/analytics/predictions/vehicles');
+      const el = document.getElementById('service-predictions');
+      if (!r.ok || !r.data.length) {
+        el.innerHTML = '<div class="empty-state"><div class="empty-icon" data-icon="check" data-size="22"></div><div class="empty-title">موردی برای سرویس نیست</div></div>';
+        refreshIcons();
+        return;
+      }
+      el.innerHTML = r.data.map((p) => `
+        <div class="list-item">
+          <div class="li-left">
+            <div class="li-icon ${p.risk_level==='high'?'danger':p.risk_level==='medium'?'warn':'info'}">
+              <span data-icon="wrench" data-size="16"></span>
+            </div>
+            <div class="li-main">
+              <div class="li-title">${p.plate}</div>
+              <div class="li-sub">${p.km_to_service.toFixed(0)} km تا سرویس | ریسک: <span class="badge ${p.risk_level}">${p.risk_level}</span></div>
+            </div>
+          </div>
+          <div class="bar ${p.risk_score>0.5?'warning':''}" style="width:120px">
+            <div style="width:${p.risk_score*100}%"></div>
+          </div>
+        </div>`).join('');
+      refreshIcons();
+    }
+
+    // Chat
+    const chatMsgs = document.getElementById('chatMessages');
+    const chatSugg = document.getElementById('chatSuggestions');
+    const SUGG = ['وضعیت ناوگان', 'تعداد موتور پایلوت', 'Downtime چقدره؟', 'سرویس‌های نزدیک'];
+    function renderSugg() {
+      chatSugg.innerHTML = SUGG.map((s) =>
+        `<button onclick="useSugg('${s}')"><span data-icon="sparkle" data-size="12"></span>${s}</button>`).join('');
+      refreshIcons();
+    }
+    renderSugg();
+    function useSugg(t) { document.getElementById('chatInput').value = t; sendChat(); }
+    function appendMsg(role, content) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + role;
+      div.textContent = content;
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+    function appendThinking() {
+      const div = document.createElement('div');
+      div.className = 'msg thinking';
+      div.id = 'thinkingMsg';
+      div.innerHTML = '<span>در حال پاسخ</span><span class="dot-row"><span></span><span></span><span></span></span>';
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+    async function sendChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      appendMsg('user', text);
+      input.value = '';
+      appendThinking();
+      const res = await SF.api('/llm/ask', { method: 'POST', body: { message: text } });
+      const t = document.getElementById('thinkingMsg');
+      if (t) t.remove();
+      if (res.ok) appendMsg('assistant', res.reply);
+      else appendMsg('assistant', 'خطا');
+    }
+    document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChat(); });
+
+    function refreshIcons() {
+      document.querySelectorAll('[data-icon]').forEach((e) => {
+        const n = e.getAttribute('data-icon');
+        if (n && !e.querySelector('svg')) e.innerHTML = SF.icon(n, { size: parseInt(e.getAttribute('data-size') || '18', 10) });
+      });
+    }
+
+    loadHome();
+    loadVehicles();
+  </script>
+</body>
+</html>

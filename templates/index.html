@@ -1,0 +1,101 @@
+<!-- File: workspace_b3660a83(2)/templates/index.html -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAPNA SwapFleet AI — ورود</title>
+  <meta name="description" content="سیستم مدیریت هوشمند ناوگان سواپ باتری مپنا" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="badge-brand" aria-hidden="true" data-icon="bolt" data-size="24"></div>
+        <div class="text">
+          <div class="title">MAPNA SwapFleet AI</div>
+          <small class="subtitle">سیستم مدیریت هوشمند ناوگان سواپ باتری</small>
+        </div>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">ایمیل</label>
+          <input type="email" name="email" id="email" required autocomplete="username"
+                 placeholder="example@swapfleet.ir" />
+        </div>
+        <div class="form-group">
+          <label for="password">رمز عبور</label>
+          <input type="password" name="password" id="password" required autocomplete="current-password"
+                 placeholder="******" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginBtn">
+          <span class="btn-icon" data-icon="arrowLeft" data-size="16"></span>
+          ورود به سامانه
+        </button>
+      </form>
+
+      <div class="demo-accounts">
+        <div class="muted mb-2">حساب‌های آزمایشی (کلیک کنید):</div>
+        <code data-email="admin@swapfleet.ir"   data-pass="admin123">admin@swapfleet.ir / admin123</code>
+        <code data-email="station@swapfleet.ir" data-pass="station123">station@swapfleet.ir / station123</code>
+        <code data-email="fleet@swapfleet.ir"   data-pass="fleet123">fleet@swapfleet.ir / fleet123</code>
+        <code data-email="rider@swapfleet.ir"   data-pass="rider123">rider@swapfleet.ir / rider123</code>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script>
+    document.querySelectorAll('.demo-accounts code').forEach((c) => {
+      c.addEventListener('click', () => {
+        document.getElementById('email').value = c.dataset.email;
+        document.getElementById('password').value = c.dataset.pass;
+        document.getElementById('email').focus();
+      });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      if (!email || !password) {
+        SF.toast('ایمیل و رمز عبور الزامی است', 'warning');
+        return;
+      }
+      btn.classList.add('is-loading');
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      }).catch(() => null);
+
+      if (!res) {
+        SF.toast('خطای شبکه. دوباره تلاش کنید.', 'error');
+        btn.classList.remove('is-loading');
+        return;
+      }
+      const data = await res.json().catch(() => ({ ok: false }));
+      if (!data.ok) {
+        SF.toast('ورود ناموفق: ' + (data.error || 'بررسی اطلاعات'), 'error');
+        btn.classList.remove('is-loading');
+        return;
+      }
+      localStorage.setItem('sf_token', data.token);
+      localStorage.setItem('sf_user', JSON.stringify(data.user));
+      SF.toast('خوش آمدید!', 'success', { duration: 1500 });
+      const map = { station: 'station', fleet: 'fleet', rider: 'rider', admin: 'admin' };
+      setTimeout(() => {
+        window.location.href = '/' + (map[data.user.role] || 'admin');
+      }, 600);
+    });
+
+    // Focus email on load
+    document.getElementById('email').focus();
+  </script>
+</body>
+</html>

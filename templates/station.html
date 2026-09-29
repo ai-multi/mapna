@@ -1,0 +1,473 @@
+<!-- File: workspace_b3660a83(2)/templates/station.html -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>داشبورد مدیر ایستگاه — MAPNA SwapFleet AI</title>
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="sidebar-backdrop"></div>
+  <div class="app">
+    <aside class="sidebar" aria-label="منوی اصلی">
+      <div class="sidebar-head">
+        <div class="brand">
+          <span class="bolt" aria-hidden="true" data-icon="bolt" data-size="18"></span>
+          <span>ایستگاه</span>
+        </div>
+      </div>
+      <nav>
+        <div class="nav-label">عملیات</div>
+        <a href="#home" class="active" data-tab="home">
+          <span class="nav-icon" data-icon="home" data-size="18"></span>خانه
+        </a>
+        <a href="#batteries" data-tab="batteries">
+          <span class="nav-icon" data-icon="battery" data-size="18"></span>باتری‌ها
+        </a>
+        <a href="#slots" data-tab="slots">
+          <span class="nav-icon" data-icon="plug" data-size="18"></span>اسلات‌ها
+        </a>
+        <a href="#swaps" data-tab="swaps">
+          <span class="nav-icon" data-icon="swap" data-size="18"></span>تعویض‌ها
+        </a>
+        <a href="#pricing" data-tab="pricing">
+          <span class="nav-icon" data-icon="coin" data-size="18"></span>قیمت‌گذاری
+        </a>
+        <div class="nav-label">ابزارها</div>
+        <a href="#ai" data-tab="ai">
+          <span class="nav-icon" data-icon="ai" data-size="18"></span>دستیار AI
+        </a>
+      </nav>
+      <div class="user-card">
+        <div class="avatar" aria-hidden="true"><span id="userAvatar">S</span></div>
+        <div class="meta">
+          <div class="name" id="userName">—</div>
+          <div class="role">مدیر ایستگاه</div>
+        </div>
+        <button class="logout" onclick="SF.logout()" aria-label="خروج" title="خروج">
+          <span data-icon="logout" data-size="16"></span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="mobile-topbar">
+        <button class="menu-btn" aria-label="باز کردن منو">
+          <span data-icon="menu" data-size="20"></span>
+        </button>
+        <h1 id="mobileTitle">خانه</h1>
+      </div>
+
+      <section id="tab-home" class="section">
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="home" data-size="18"></div>
+            <div>
+              <h1>خانه</h1>
+              <div class="subtitle">نمای سریع از وضعیت ایستگاه شما</div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid" id="kpis">
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+          <div class="kpi"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line" style="height:28px;width:40%;margin-top:8px"></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3><span class="h3-icon" data-icon="plug" data-size="16"></span>اسلات‌های فعلی</h3>
+            <div id="slots-grid" class="grid-2"></div>
+          </div>
+          <div class="card">
+            <h3><span class="h3-icon" data-icon="swap" data-size="16"></span>تعویض‌های اخیر</h3>
+            <div class="table-wrap" style="border:none;background:transparent">
+              <table id="swaps-table">
+                <thead><tr><th>کاربر</th><th>باتری</th><th>قیمت</th><th>زمان</th></tr></thead>
+                <tbody><tr><td colspan="4"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-batteries" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="battery" data-size="18"></div>
+            <div>
+              <h1>باتری‌ها</h1>
+              <div class="subtitle">وضعیت سلامت و شارژ تمام باتری‌های ایستگاه</div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="document.getElementById('addBatteryModal').classList.add('is-open')">
+              <span class="btn-icon" data-icon="plus" data-size="16"></span>افزودن
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="batteries-table">
+            <thead><tr><th>سریال</th><th>SoC</th><th>SoH</th><th>چرخه</th><th>دما</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+            <tbody><tr><td colspan="7"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-slots" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="plug" data-size="18"></div>
+            <div>
+              <h1>اسلات‌ها</h1>
+              <div class="subtitle">نقشه اسلات‌های فیزیکی ایستگاه</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div id="all-slots-grid" class="grid-2"></div>
+        </div>
+      </section>
+
+      <section id="tab-swaps" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="swap" data-size="18"></div>
+            <div>
+              <h1>تعویض‌ها</h1>
+              <div class="subtitle">مدیریت رزروها و تکمیل تعویض‌ها</div>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="all-swaps-table">
+            <thead><tr><th>کاربر</th><th>وسیله</th><th>باتری</th><th>انرژی</th><th>قیمت</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+            <tbody><tr><td colspan="7"><div class="skeleton skeleton-line"></div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-pricing" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="coin" data-size="18"></div>
+            <div>
+              <h1>پیش‌نمایش قیمت پویا</h1>
+              <div class="subtitle">محاسبه قیمت بر اساس ساعت و تقاضا</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="priceStationId">انتخاب ایستگاه</label>
+              <select id="priceStationId"></select>
+            </div>
+            <div class="form-group">
+              <label for="priceEnergy">انرژی (kWh)</label>
+              <input type="number" id="priceEnergy" value="3" min="0.5" step="0.1" />
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="calcPrice()">
+            <span class="btn-icon" data-icon="bolt" data-size="16"></span>محاسبه
+          </button>
+          <div id="priceResult" style="margin-top:16px"></div>
+        </div>
+      </section>
+
+      <section id="tab-ai" class="section" hidden>
+        <div class="topbar">
+          <div class="title-wrap">
+            <div class="title-icon" data-icon="ai" data-size="18"></div>
+            <div>
+              <h1>دستیار AI</h1>
+              <div class="subtitle">پاسخ به سؤالات شما بر اساس داده‌های ایستگاه</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-box">
+          <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
+          <div class="chat-suggestions" id="chatSuggestions"></div>
+          <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="سوال..." aria-label="پیام" />
+            <button class="btn btn-primary" onclick="sendChat()" aria-label="ارسال">
+              <span class="btn-icon" data-icon="send" data-size="16"></span>ارسال
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="ناوبری سریع">
+      <a href="#home" data-tab="home"><span class="ico" data-icon="home" data-size="22"></span>خانه</a>
+      <a href="#batteries" data-tab="batteries"><span class="ico" data-icon="battery" data-size="22"></span>باتری</a>
+      <a href="#swaps" data-tab="swaps"><span class="ico" data-icon="swap" data-size="22"></span>سواپ</a>
+      <a href="#pricing" data-tab="pricing"><span class="ico" data-icon="coin" data-size="22"></span>قیمت</a>
+      <a href="#ai" data-tab="ai"><span class="ico" data-icon="ai" data-size="22"></span>AI</a>
+    </nav>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script>
+    const u = SF.requireAuth('station');
+    if (u) {
+      document.getElementById('userName').textContent = u.full_name;
+      document.getElementById('userAvatar').textContent = SF.avatar(u.full_name);
+    }
+
+    const TAB_TITLES = {
+      home: 'خانه', batteries: 'باتری‌ها', slots: 'اسلات‌ها',
+      swaps: 'تعویض‌ها', pricing: 'قیمت‌گذاری', ai: 'دستیار AI'
+    };
+
+    document.querySelectorAll('.sidebar nav a').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(a.dataset.tab);
+      });
+    });
+    document.querySelectorAll('.bottom-nav a').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(a.dataset.tab);
+        window.location.hash = a.dataset.tab;
+      });
+    });
+    function switchTab(t) {
+      document.querySelectorAll('.sidebar nav a').forEach((x) => x.classList.toggle('active', x.dataset.tab === t));
+      ['home', 'batteries', 'slots', 'swaps', 'pricing', 'ai'].forEach((id) => {
+        const el = document.getElementById('tab-' + id);
+        if (el) el.hidden = id !== t;
+      });
+      const mt = document.getElementById('mobileTitle');
+      if (mt) mt.textContent = TAB_TITLES[t] || '';
+      if (t === 'swaps') loadAllSwaps();
+      if (t === 'pricing') loadStationsForPrice();
+      if (t === 'slots') loadAllSlots();
+    }
+    if (location.hash) switchTab(location.hash.slice(1));
+
+    let myStations = [];
+    async function loadMyStation() {
+      const r = await SF.api('/station/my');
+      myStations = (r.data || []);
+      if (!myStations.length) {
+        document.getElementById('kpis').innerHTML =
+          '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon" data-icon="station" data-size="22"></div><div class="empty-title">ایستگاهی اختصاص داده نشده</div><div class="muted">با مدیر کل تماس بگیرید</div></div>';
+        refreshIcons();
+        return;
+      }
+      const s = myStations[0];
+      document.getElementById('kpis').innerHTML = `
+        <div class="kpi kpi-info">
+          <div class="label"><span class="ico" data-icon="station" data-size="14"></span>نام ایستگاه</div>
+          <div class="value" style="font-size:18px">${s.name}</div>
+        </div>
+        <div class="kpi kpi-accent">
+          <div class="label"><span class="ico" data-icon="plug" data-size="14"></span>ظرفیت</div>
+          <div class="value">${s.capacity_slots}</div>
+        </div>
+        <div class="kpi kpi-primary">
+          <div class="label"><span class="ico" data-icon="check" data-size="14"></span>خالی</div>
+          <div class="value">${s.available_slots}</div>
+        </div>
+        <div class="kpi kpi-warning">
+          <div class="label"><span class="ico" data-icon="trendUp" data-size="14"></span>اشغال</div>
+          <div class="value">${(s.occupancy_ratio*100).toFixed(0)}%</div>
+        </div>
+      `;
+      const slotsRes = await SF.api('/swap/stations/' + s.id + '/slots');
+      if (slotsRes.ok) {
+        document.getElementById('slots-grid').innerHTML = slotsRes.data.map((sl) => `
+          <div class="kpi" style="padding:8px 12px">
+            <div class="flex-between">
+              <strong style="font-size:13px">${sl.slot_code}</strong>
+              <span class="badge ${sl.status}"><span class="dot ${sl.status}"></span>${sl.status}</span>
+            </div>
+          </div>`).join('');
+      }
+      const swapsRes = await SF.api('/swap/events');
+      if (swapsRes.ok) {
+        const tb = document.querySelector('#swaps-table tbody');
+        if (!swapsRes.data.length) {
+          tb.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-title">سواپی ثبت نشده</div></div></td></tr>';
+        } else {
+          tb.innerHTML = swapsRes.data.slice(0, 8).map((e) => `
+            <tr>
+              <td>#${e.user_id}</td>
+              <td>${e.new_battery_id ? 'BAT-'+e.new_battery_id : '—'}</td>
+              <td class="text-mono">${SF.fmt.toman(e.price_toman)}</td>
+              <td class="muted" data-ltr>${SF.fmt.date(e.created_at)}</td>
+            </tr>`).join('');
+        }
+      }
+      refreshIcons();
+    }
+
+    async function loadBatteries() {
+      if (!myStations.length) return;
+      const r = await SF.api('/station/' + myStations[0].id + '/batteries');
+      if (!r.ok) return;
+      const tb = document.querySelector('#batteries-table tbody');
+      if (!r.data.length) {
+        tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-title">باتری ثبت نشده</div></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = r.data.map((b) => `
+        <tr>
+          <td><strong>${b.serial}</strong></td>
+          <td>
+            <div class="bar" style="width:80px;display:inline-block;vertical-align:middle"><div style="width:${b.soc}%"></div></div>
+            <span class="muted" style="margin-right:6px">${b.soc.toFixed(0)}%</span>
+          </td>
+          <td>
+            <div class="bar ${b.soh<80?'warning':''}" style="width:80px;display:inline-block;vertical-align:middle"><div style="width:${b.soh}%"></div></div>
+            <span class="muted" style="margin-right:6px">${b.soh.toFixed(0)}%</span>
+          </td>
+          <td class="text-mono">${b.cycle_count}</td>
+          <td class="text-mono">${b.temperature_c.toFixed(1)}°C</td>
+          <td><span class="badge ${b.status}"><span class="dot ${b.status}"></span>${b.status}</span></td>
+          <td class="actions"><button class="btn btn-ghost btn-sm" onclick="charge(${b.id})">
+            <span data-icon="bolt" data-size="14"></span>شارژ کامل
+          </button></td>
+        </tr>`).join('');
+      refreshIcons();
+    }
+
+    async function charge(id) {
+      const btn = event.currentTarget;
+      btn.classList.add('is-loading');
+      await SF.api('/station/batteries/' + id, { method: 'PATCH', body: { soc: 100, status: 'ready' } });
+      btn.classList.remove('is-loading');
+      loadBatteries();
+      SF.toast('باتری شارژ شد', 'success');
+    }
+
+    async function loadAllSwaps() {
+      const r = await SF.api('/swap/events');
+      if (!r.ok) return;
+      const tb = document.querySelector('#all-swaps-table tbody');
+      if (!r.data.length) {
+        tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-title">سواپی ثبت نشده</div></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = r.data.map((e) => `
+        <tr>
+          <td>#${e.user_id}</td>
+          <td>${e.vehicle_id || '—'}</td>
+          <td>${e.new_battery_id || '—'}</td>
+          <td class="text-mono">${e.energy_kwh} kWh</td>
+          <td class="text-mono">${SF.fmt.toman(e.price_toman)}</td>
+          <td><span class="badge ${e.status}">${e.status}</span></td>
+          <td class="actions">${e.status === 'reserved' ? `<button class="btn btn-primary btn-sm" onclick="complete(${e.id})"><span data-icon="check" data-size="14"></span>تأیید</button>` : '—'}</td>
+        </tr>`).join('');
+      refreshIcons();
+    }
+
+    async function complete(id) {
+      const btn = event.currentTarget;
+      btn.classList.add('is-loading');
+      const r = await SF.api('/swap/events/' + id + '/complete', { method: 'POST' });
+      btn.classList.remove('is-loading');
+      if (r.ok) { SF.toast('تأیید شد', 'success'); loadAllSwaps(); }
+      else SF.toast('خطا در تأیید', 'error');
+    }
+
+    async function loadAllSlots() {
+      if (!myStations.length) return;
+      const r = await SF.api('/swap/stations/' + myStations[0].id + '/slots');
+      if (!r.ok) return;
+      const g = document.getElementById('all-slots-grid');
+      if (!r.data.length) {
+        g.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-title">اسلاتی ثبت نشده</div></div>';
+        return;
+      }
+      g.innerHTML = r.data.map((sl) => `
+        <div class="kpi" style="padding:12px 14px">
+          <div class="flex-between">
+            <strong style="font-size:13px">${sl.slot_code}</strong>
+            <span class="badge ${sl.status}"><span class="dot ${sl.status}"></span>${sl.status}</span>
+          </div>
+          ${sl.battery_id ? '<div class="muted mt-1">باتری #' + sl.battery_id + '</div>' : ''}
+        </div>`).join('');
+    }
+
+    async function loadStationsForPrice() {
+      const r = await SF.api('/swap/stations');
+      if (!r.ok) return;
+      document.getElementById('priceStationId').innerHTML = r.data.map((s) =>
+        `<option value="${s.id}">${s.name}</option>`).join('');
+    }
+    async function calcPrice() {
+      const sid = document.getElementById('priceStationId').value;
+      const e = parseFloat(document.getElementById('priceEnergy').value);
+      const r = await SF.api('/swap/price-preview', { method: 'POST', body: { station_id: parseInt(sid), energy_kwh: e } });
+      if (!r.ok) { SF.toast('خطا در محاسبه', 'error'); return; }
+      const d = r.data;
+      document.getElementById('priceResult').innerHTML = `
+        <div class="divider"></div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="label">قیمت پایه</div><div class="value">${SF.fmt.toman(d.base_price_toman)}</div></div>
+          <div class="kpi kpi-info"><div class="label">ضریب ساعتی</div><div class="value">${d.multiplier}×</div></div>
+          <div class="kpi kpi-accent"><div class="label">ضریب تقاضا</div><div class="value">${d.demand_factor}×</div></div>
+          <div class="kpi kpi-primary"><div class="label">قیمت نهایی</div><div class="value">${SF.fmt.toman(d.final_price_toman)}</div></div>
+        </div>
+        <p class="muted mt-2">ساعت ${d.hour} | روز هفته ${d.weekday} | اشغال ${(d.occupancy_ratio*100).toFixed(0)}%</p>
+      `;
+    }
+
+    // Chat
+    const chatMsgs = document.getElementById('chatMessages');
+    const chatSugg = document.getElementById('chatSuggestions');
+    const SUGG = ['وضعیت شارژرها', 'چند باتری ready دارم؟', 'هشدارهای اخیر', 'نکات اکو'];
+    function renderSugg() {
+      chatSugg.innerHTML = SUGG.map((s) =>
+        `<button onclick="useSugg('${s}')"><span data-icon="sparkle" data-size="12"></span>${s}</button>`).join('');
+      refreshIcons();
+    }
+    renderSugg();
+    function useSugg(t) { document.getElementById('chatInput').value = t; sendChat(); }
+    function appendMsg(role, content) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + role;
+      div.textContent = content;
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+    function appendThinking() {
+      const div = document.createElement('div');
+      div.className = 'msg thinking';
+      div.id = 'thinkingMsg';
+      div.innerHTML = '<span>در حال پاسخ</span><span class="dot-row"><span></span><span></span><span></span></span>';
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+    async function sendChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      appendMsg('user', text);
+      input.value = '';
+      appendThinking();
+      const res = await SF.api('/llm/ask', { method: 'POST', body: { message: text } });
+      const t = document.getElementById('thinkingMsg');
+      if (t) t.remove();
+      if (res.ok) appendMsg('assistant', res.reply);
+      else appendMsg('assistant', 'خطا');
+    }
+    document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChat(); });
+
+    function refreshIcons() {
+      document.querySelectorAll('[data-icon]').forEach((e) => {
+        const n = e.getAttribute('data-icon');
+        if (n && !e.querySelector('svg')) e.innerHTML = SF.icon(n, { size: parseInt(e.getAttribute('data-size') || '18', 10) });
+      });
+    }
+
+    loadMyStation();
+    loadBatteries();
+  </script>
+</body>
+</html>
